@@ -1,0 +1,23 @@
+library(class)
+library(caret)
+#Load data
+flag <- read.csv("E:flag.csv", header = T)
+head(flag)
+str(flag)
+summary(flag)
+set.seed(300)
+indxTrain <- createDataPartition(y = flag$landmass,p = 0.75,list = FALSE)
+training <- flag[indxTrain,]
+testing <- flag[-indxTrain,]
+prop.table(table(training$landmass)) * 100
+prop.table(table(testing$landmass)) * 100
+prop.table(table(flag$landmass)) * 100
+trainX <- training[,names(training) != "Landmass"]
+preProcValues <- preProcess(x = trainX,method = c("center", "scale"))
+preProcValues
+set.seed(400)
+ctrl <- trainControl(method="repeatedcv",repeats = 3) #,classProbs=TRUE,summaryFunction = twoClassSummary)
+knnFit <- train(landmass ~ ., data = training, method = "knn", trControl = ctrl, preProcess = c("center","scale"), tuneLength = 20)
+#Output knnfit
+knnFit
+plot(knnFit)
